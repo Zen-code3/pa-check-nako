@@ -11,22 +11,36 @@ import java.sql.SQLException;
  */
 public class Database {
 
-    private static final String URL = "jdbc:mysql://localhost:3306/qualimed";
+    private static final String URL = "jdbc:mysql://localhost:3306/qualimed"
+            + "?useSSL=false"
+            + "&allowPublicKeyRetrieval=true"
+            + "&serverTimezone=UTC";
     private static final String USERNAME = "root";
     private static final String PASSWORD = "";
 
     static {
         try {
-            // Load MySQL JDBC driver (Connector/J 8.x)
             Class.forName("com.mysql.cj.jdbc.Driver");
         } catch (ClassNotFoundException e) {
-            // If the driver is missing, we'll see errors when attempting to connect.
+            System.err.println("MySQL JDBC Driver not found. Add mysql-connector-j-*.jar to your classpath.");
             e.printStackTrace();
         }
     }
 
     public static Connection getConnection() throws SQLException {
         return DriverManager.getConnection(URL, USERNAME, PASSWORD);
+    }
+
+    /**
+     * Tests the database connection. Returns true if successful.
+     */
+    public static boolean testConnection() {
+        try (Connection conn = getConnection()) {
+            return conn != null && conn.isValid(3);
+        } catch (SQLException e) {
+            System.err.println("Database connection failed: " + e.getMessage());
+            return false;
+        }
     }
 }
 

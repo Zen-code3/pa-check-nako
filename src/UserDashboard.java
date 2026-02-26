@@ -289,13 +289,12 @@ public class UserDashboard extends javax.swing.JFrame {
 
         jLabel5.addMouseListener(adapter);   // Dashboard
         jLabel9.addMouseListener(adapter);   // Products
-        jLabel3.addMouseListener(adapter);   // Cart
         jLabel11.addMouseListener(adapter);  // Orders
         jLabel12.addMouseListener(adapter);  // Profile
     }
 
     private void resetSidebarHighlight() {
-        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel3, jLabel11, jLabel12};
+        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel11, jLabel12};
         for (javax.swing.JLabel lbl : labels) {
             lbl.setOpaque(false);
             lbl.setBackground(null);
