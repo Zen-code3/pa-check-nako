@@ -98,6 +98,16 @@ public class OrderDAO {
         return result;
     }
 
+    public void updateStatus(int orderId, String status) throws SQLException {
+        String sql = "UPDATE `Order` SET status = ? WHERE pk_order_id = ?";
+        try (Connection conn = Database.getConnection();
+             PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, status);
+            stmt.setInt(2, orderId);
+            stmt.executeUpdate();
+        }
+    }
+
     /**
      * Returns a comma-separated list of product names for a given order.
      */

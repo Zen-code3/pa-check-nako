@@ -10,14 +10,29 @@ import javax.swing.JTextField;
  */
 public class AddproductAdmin extends javax.swing.JFrame {
 
+    private int editProductId = -1;
+
     /**
-     * Creates new form AddproductAdmin
+     * Creates new form AddproductAdmin (add mode).
      */
     public AddproductAdmin() {
+        this(-1);
+    }
+
+    /**
+     * Creates AddproductAdmin in edit mode when productId &gt; 0.
+     */
+    public AddproductAdmin(int productId) {
         initComponents();
         SessionManager.requireLogin(this);
+        editProductId = productId;
         initActions();
         setupInputs();
+        if (editProductId > 0) {
+            jLabel1.setText("Edit Product");
+            jLabel8.setText("Update Product");
+            loadProduct();
+        }
     }
 
     /**
@@ -300,6 +315,26 @@ public class AddproductAdmin extends javax.swing.JFrame {
         jPanel7.add(txtExpiry, java.awt.BorderLayout.CENTER);
     }
 
+    private void loadProduct() {
+        if (editProductId <= 0) return;
+        ProductDAO dao = new ProductDAO();
+        try {
+            Product p = dao.findById(editProductId);
+            if (p != null) {
+                jTextField1.setText(p.getProductName());
+                txtDescription.setText(p.getDescription() != null ? p.getDescription() : "");
+                txtCategory.setText(p.getCategory() != null ? p.getCategory() : "");
+                txtPrice.setText(String.valueOf(p.getPrice()));
+                txtStock.setText(String.valueOf(p.getStockQuantity()));
+                if (p.getExpiryDate() != null) {
+                    txtExpiry.setText(new SimpleDateFormat("yyyy-MM-dd").format(p.getExpiryDate()));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
     private void handleCreateProduct() {
         String name = jTextField1.getText().trim();
         String description = txtDescription.getText().trim();
@@ -360,13 +395,24 @@ public class AddproductAdmin extends javax.swing.JFrame {
 
         ProductDAO dao = new ProductDAO();
         try {
-            dao.create(product);
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Product has been created.",
-                    "Success",
-                    JOptionPane.INFORMATION_MESSAGE
-            );
+            if (editProductId > 0) {
+                product.setProductId(editProductId);
+                dao.update(product);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Product has been updated.",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            } else {
+                dao.create(product);
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Product has been created.",
+                        "Success",
+                        JOptionPane.INFORMATION_MESSAGE
+                );
+            }
             new ProductADMIN().setVisible(true);
             this.dispose();
         } catch (SQLException ex) {

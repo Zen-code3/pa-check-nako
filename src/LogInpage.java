@@ -48,11 +48,11 @@ public class LogInpage extends javax.swing.JFrame {
         jPanel3.setLayout(new org.netbeans.lib.awtextra.AbsoluteLayout());
 
         jLabel1.setFont(new java.awt.Font("Tahoma", 1, 24)); // NOI18N
-        jLabel1.setText("Create Account");
+        jLabel1.setText("Welcome Back");
         jPanel3.add(jLabel1, new org.netbeans.lib.awtextra.AbsoluteConstraints(110, 80, -1, -1));
 
         jLabel2.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel2.setText("Join Qualimed Pharmacy today");
+        jLabel2.setText("Sign in to your Qualimed account");
         jPanel3.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 120, -1, -1));
 
         jLabel4.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -64,7 +64,7 @@ public class LogInpage extends javax.swing.JFrame {
         jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 290, -1, -1));
 
         jPasswordField1.setForeground(new java.awt.Color(153, 153, 153));
-        jPasswordField1.setText("jPasswordField1");
+        jPasswordField1.setEchoChar('•');
         jPanel3.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 320, 320, 40));
 
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
@@ -76,13 +76,13 @@ public class LogInpage extends javax.swing.JFrame {
 
         jButton1.setBackground(new java.awt.Color(34, 156, 129));
         jButton1.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jButton1.setForeground(new java.awt.Color(34, 156, 29));
+        jButton1.setForeground(new java.awt.Color(255, 255, 255));
         jButton1.setText("Sign In");
         jPanel3.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 390, 180, -1));
 
         jLabel3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
         jLabel3.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel3.setText("Don't have an Account ?");
+        jLabel3.setText("Don't have an account? ");
         jPanel3.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(130, 430, -1, -1));
 
         jLabel6.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
@@ -140,7 +140,10 @@ public class LogInpage extends javax.swing.JFrame {
 
         // Hard-coded admin account (optional) – adjust as needed
         if (email.equalsIgnoreCase("admin@qualimed.com") && password.equals("admin123")) {
-            SessionManager.login(null, true);
+            Customer adminUser = new Customer();
+            adminUser.setFullName("Admin");
+            adminUser.setEmail("admin@qualimed.com");
+            SessionManager.login(adminUser, true);
             JOptionPane.showMessageDialog(
                     this,
                     "Admin login successful.",
@@ -165,7 +168,7 @@ public class LogInpage extends javax.swing.JFrame {
                 return;
             }
 
-            SessionManager.login(user, false);
+            SessionManager.login(user, user.isAdmin());
             JOptionPane.showMessageDialog(
                     this,
                     "Login successful.",
@@ -173,7 +176,11 @@ public class LogInpage extends javax.swing.JFrame {
                     JOptionPane.INFORMATION_MESSAGE
             );
 
-            new UserDashboard().setVisible(true);
+            if (user.isAdmin()) {
+                new AdminDashboard().setVisible(true);
+            } else {
+                new UserDashboard().setVisible(true);
+            }
             this.dispose();
         } catch (SQLException ex) {
             ex.printStackTrace();

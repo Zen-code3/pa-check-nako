@@ -18,6 +18,7 @@ public class AdminDashboard extends javax.swing.JFrame {
         initActions();
         loadStats();
         setupSidebarHighlight();
+        setupUserDisplay();
     }
 
     /**
@@ -316,6 +317,29 @@ public class AdminDashboard extends javax.swing.JFrame {
             new LandingPage().setVisible(true);
             this.dispose();
         });
+    }
+
+    private void setupUserDisplay() {
+        javax.swing.JPanel userPanel = new javax.swing.JPanel();
+        userPanel.setBackground(new java.awt.Color(209, 242, 235));
+        userPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        userPanel.setLayout(new java.awt.BorderLayout(0, 4));
+        javax.swing.JLabel nameLbl = new javax.swing.JLabel();
+        javax.swing.JLabel emailLbl = new javax.swing.JLabel();
+        nameLbl.setFont(new java.awt.Font("Tahoma", 1, 12));
+        emailLbl.setFont(new java.awt.Font("Tahoma", 0, 11));
+        emailLbl.setForeground(new java.awt.Color(80, 80, 80));
+        Customer u = SessionManager.getCurrentUser();
+        if (u != null) {
+            nameLbl.setText(u.getFullName() != null ? u.getFullName() : "User");
+            emailLbl.setText(u.getEmail() != null ? u.getEmail() : "");
+        } else {
+            nameLbl.setText("Admin");
+            emailLbl.setText("admin@qualimed.com");
+        }
+        userPanel.add(nameLbl, java.awt.BorderLayout.NORTH);
+        userPanel.add(emailLbl, java.awt.BorderLayout.CENTER);
+        jPanel1.add(userPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 200, 60));
     }
 
     private void loadStats() {

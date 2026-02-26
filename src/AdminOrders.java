@@ -319,12 +319,17 @@ public class AdminOrders extends javax.swing.JFrame {
         jPanel6.repaint();
     }
 
+    private JComboBox<String> statusUpdateCombo;
+
     private void setupSearchAndFilter() {
-        orderSearchField = new JTextField();
+        orderSearchField = new JTextField(15);
         statusFilter = new JComboBox<>(new String[]{"All", "Completed", "Pending", "Processing", "Cancelled"});
+        statusUpdateCombo = new JComboBox<>(new String[]{"Completed", "Pending", "Processing", "Cancelled"});
 
         javax.swing.JButton searchButton = new javax.swing.JButton("Search");
+        javax.swing.JButton updateStatusBtn = new javax.swing.JButton("Update Status");
         searchButton.addActionListener(e -> loadOrders(orderSearchField.getText(), (String) statusFilter.getSelectedItem()));
+        updateStatusBtn.addActionListener(e -> updateSelectedOrderStatus());
 
         jPanel12.removeAll();
         jPanel12.setLayout(new java.awt.BorderLayout());
@@ -336,6 +341,8 @@ public class AdminOrders extends javax.swing.JFrame {
         javax.swing.JPanel right = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
         right.setOpaque(false);
         right.add(statusFilter);
+        right.add(statusUpdateCombo);
+        right.add(updateStatusBtn);
         right.add(searchButton);
 
         inner.add(right, java.awt.BorderLayout.EAST);
@@ -343,6 +350,48 @@ public class AdminOrders extends javax.swing.JFrame {
         jPanel12.add(inner, java.awt.BorderLayout.CENTER);
         jPanel12.revalidate();
         jPanel12.repaint();
+    }
+
+    private void updateSelectedOrderStatus() {
+        int row = ordersTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Please select an order to update.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int orderId = (Integer) ordersTable.getValueAt(row, 0);
+        String newStatus = (String) statusUpdateCombo.getSelectedItem();
+        OrderDAO dao = new OrderDAO();
+        try {
+            dao.updateStatus(orderId, newStatus);
+            loadOrders(orderSearchField.getText(), (String) statusFilter.getSelectedItem());
+            JOptionPane.showMessageDialog(this, "Order status updated to " + newStatus + ".", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to update order status.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void setupUserDisplay() {
+        javax.swing.JPanel userPanel = new javax.swing.JPanel();
+        userPanel.setBackground(new java.awt.Color(209, 242, 235));
+        userPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        userPanel.setLayout(new java.awt.BorderLayout(0, 4));
+        javax.swing.JLabel nameLbl = new javax.swing.JLabel();
+        javax.swing.JLabel emailLbl = new javax.swing.JLabel();
+        nameLbl.setFont(new java.awt.Font("Tahoma", 1, 12));
+        emailLbl.setFont(new java.awt.Font("Tahoma", 0, 11));
+        emailLbl.setForeground(new java.awt.Color(80, 80, 80));
+        Customer u = SessionManager.getCurrentUser();
+        if (u != null) {
+            nameLbl.setText(u.getFullName() != null ? u.getFullName() : "User");
+            emailLbl.setText(u.getEmail() != null ? u.getEmail() : "");
+        } else {
+            nameLbl.setText("Admin");
+            emailLbl.setText("admin@qualimed.com");
+        }
+        userPanel.add(nameLbl, java.awt.BorderLayout.NORTH);
+        userPanel.add(emailLbl, java.awt.BorderLayout.CENTER);
+        jPanel1.add(userPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 200, 60));
     }
 
     private void loadOrders(String searchTerm, String status) {

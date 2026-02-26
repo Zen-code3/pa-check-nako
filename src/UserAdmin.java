@@ -25,6 +25,7 @@ public class UserAdmin extends javax.swing.JFrame {
         setupUserSearch();
         loadUsers(null);
         setupSidebarHighlight();
+        setupUserDisplay();
     }
 
     /**
@@ -292,7 +293,7 @@ public class UserAdmin extends javax.swing.JFrame {
         userTable = new JTable();
         userTable.setModel(new DefaultTableModel(
                 new Object[][]{},
-                new String[]{"ID", "Name", "Email", "Contact", "Address"}
+                new String[]{"ID", "Name", "Email", "Contact", "Role"}
         ) {
             @Override
             public boolean isCellEditable(int row, int column) {
@@ -307,13 +308,18 @@ public class UserAdmin extends javax.swing.JFrame {
         jPanel6.repaint();
     }
 
+    private javax.swing.JButton makeAdminBtn;
+    private javax.swing.JButton removeAdminBtn;
+
     private void setupUserSearch() {
-        userSearchField = new JTextField();
+        userSearchField = new JTextField(20);
         javax.swing.JButton searchButton = new javax.swing.JButton("Search");
-        javax.swing.JButton deleteButton = new javax.swing.JButton("Delete Selected");
+        makeAdminBtn = new javax.swing.JButton("Make Admin");
+        removeAdminBtn = new javax.swing.JButton("Remove Admin");
 
         searchButton.addActionListener(e -> loadUsers(userSearchField.getText()));
-        deleteButton.addActionListener(e -> deleteSelectedUser());
+        makeAdminBtn.addActionListener(e -> makeAdminSelected());
+        removeAdminBtn.addActionListener(e -> removeAdminSelected());
 
         jPanel12.removeAll();
         jPanel12.setLayout(new java.awt.BorderLayout());
@@ -324,14 +330,60 @@ public class UserAdmin extends javax.swing.JFrame {
 
         javax.swing.JPanel buttons = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
         buttons.setOpaque(false);
+        buttons.add(makeAdminBtn);
+        buttons.add(removeAdminBtn);
         buttons.add(searchButton);
-        buttons.add(deleteButton);
 
         inner.add(buttons, java.awt.BorderLayout.EAST);
 
         jPanel12.add(inner, java.awt.BorderLayout.CENTER);
         jPanel12.revalidate();
         jPanel12.repaint();
+
+        userTable.getSelectionModel().addListSelectionListener(e -> updateActionButtons());
+        updateActionButtons();
+    }
+
+    private void updateActionButtons() {
+        int row = userTable.getSelectedRow();
+        if (row < 0) {
+            makeAdminBtn.setEnabled(false);
+            removeAdminBtn.setEnabled(false);
+            return;
+        }
+        String role = (String) userTable.getValueAt(row, 4);
+        makeAdminBtn.setEnabled("Customer".equals(role));
+        removeAdminBtn.setEnabled("Admin".equals(role));
+    }
+
+    private void makeAdminSelected() {
+        int row = userTable.getSelectedRow();
+        if (row < 0) return;
+        int id = (Integer) userTable.getValueAt(row, 0);
+        CustomerDAO dao = new CustomerDAO();
+        try {
+            dao.updateAdminRole(id, true);
+            loadUsers(userSearchField.getText());
+            JOptionPane.showMessageDialog(this, "User is now an admin.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to update role.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void removeAdminSelected() {
+        int row = userTable.getSelectedRow();
+        if (row < 0) return;
+        int id = (Integer) userTable.getValueAt(row, 0);
+        CustomerDAO dao = new CustomerDAO();
+        try {
+            dao.updateAdminRole(id, false);
+            loadUsers(userSearchField.getText());
+            JOptionPane.showMessageDialog(this, "Admin rights removed.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to update role.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
     }
 
     private void loadUsers(String searchTerm) {
@@ -350,7 +402,7 @@ public class UserAdmin extends javax.swing.JFrame {
                         c.getFullName(),
                         c.getEmail(),
                         c.getContactNumber(),
-                        c.getAddress()
+                        c.isAdmin() ? "Admin" : "Customer"
                 });
             }
         } catch (SQLException ex) {
@@ -358,42 +410,27 @@ public class UserAdmin extends javax.swing.JFrame {
         }
     }
 
-    private void deleteSelectedUser() {
-        int row = userTable.getSelectedRow();
-        if (row < 0) {
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Please select a user to delete.",
-                    "No Selection",
-                    JOptionPane.WARNING_MESSAGE
-            );
-            return;
+    private void setupUserDisplay() {
+        javax.swing.JPanel userPanel = new javax.swing.JPanel();
+        userPanel.setBackground(new java.awt.Color(209, 242, 235));
+        userPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        userPanel.setLayout(new java.awt.BorderLayout(0, 4));
+        javax.swing.JLabel nameLbl = new javax.swing.JLabel();
+        javax.swing.JLabel emailLbl = new javax.swing.JLabel();
+        nameLbl.setFont(new java.awt.Font("Tahoma", 1, 12));
+        emailLbl.setFont(new java.awt.Font("Tahoma", 0, 11));
+        emailLbl.setForeground(new java.awt.Color(80, 80, 80));
+        Customer u = SessionManager.getCurrentUser();
+        if (u != null) {
+            nameLbl.setText(u.getFullName() != null ? u.getFullName() : "User");
+            emailLbl.setText(u.getEmail() != null ? u.getEmail() : "");
+        } else {
+            nameLbl.setText("Admin");
+            emailLbl.setText("admin@qualimed.com");
         }
-        int id = (int) userTable.getValueAt(row, 0);
-
-        int confirm = JOptionPane.showConfirmDialog(
-                this,
-                "Are you sure you want to delete this user?",
-                "Confirm Delete",
-                JOptionPane.YES_NO_OPTION
-        );
-        if (confirm != JOptionPane.YES_OPTION) {
-            return;
-        }
-
-        CustomerDAO dao = new CustomerDAO();
-        try {
-            dao.deleteById(id);
-            loadUsers(userSearchField.getText());
-        } catch (SQLException ex) {
-            ex.printStackTrace();
-            JOptionPane.showMessageDialog(
-                    this,
-                    "Failed to delete user.",
-                    "Error",
-                    JOptionPane.ERROR_MESSAGE
-            );
-        }
+        userPanel.add(nameLbl, java.awt.BorderLayout.NORTH);
+        userPanel.add(emailLbl, java.awt.BorderLayout.CENTER);
+        jPanel1.add(userPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 200, 60));
     }
 
     private void setupSidebarHighlight() {

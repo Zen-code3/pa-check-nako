@@ -2,6 +2,7 @@ import java.sql.SQLException;
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
@@ -24,6 +25,7 @@ public class ProductADMIN extends javax.swing.JFrame {
         setupSearch();
         loadProducts(null);
         setupSidebarHighlight();
+        setupUserDisplay();
     }
 
     /**
@@ -353,9 +355,14 @@ public class ProductADMIN extends javax.swing.JFrame {
     }
 
     private void setupSearch() {
-        searchField = new JTextField();
+        searchField = new JTextField(20);
         javax.swing.JButton searchButton = new javax.swing.JButton("Search");
+        javax.swing.JButton editButton = new javax.swing.JButton("Edit");
+        javax.swing.JButton deleteButton = new javax.swing.JButton("Delete");
+
         searchButton.addActionListener(e -> loadProducts(searchField.getText()));
+        editButton.addActionListener(e -> editSelectedProduct());
+        deleteButton.addActionListener(e -> deleteSelectedProduct());
 
         jPanel12.removeAll();
         jPanel12.setLayout(new java.awt.BorderLayout());
@@ -363,11 +370,72 @@ public class ProductADMIN extends javax.swing.JFrame {
         javax.swing.JPanel inner = new javax.swing.JPanel(new java.awt.BorderLayout(8, 0));
         inner.setOpaque(false);
         inner.add(searchField, java.awt.BorderLayout.CENTER);
-        inner.add(searchButton, java.awt.BorderLayout.EAST);
+
+        javax.swing.JPanel buttons = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        buttons.setOpaque(false);
+        buttons.add(editButton);
+        buttons.add(deleteButton);
+        buttons.add(searchButton);
+
+        inner.add(buttons, java.awt.BorderLayout.EAST);
 
         jPanel12.add(inner, java.awt.BorderLayout.CENTER);
         jPanel12.revalidate();
         jPanel12.repaint();
+    }
+
+    private void editSelectedProduct() {
+        int row = productTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a product to edit.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) productTable.getValueAt(row, 0);
+        new AddproductAdmin(id).setVisible(true);
+        this.dispose();
+    }
+
+    private void deleteSelectedProduct() {
+        int row = productTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(this, "Please select a product to delete.", "No Selection", JOptionPane.WARNING_MESSAGE);
+            return;
+        }
+        int id = (Integer) productTable.getValueAt(row, 0);
+        int confirm = JOptionPane.showConfirmDialog(this, "Are you sure you want to delete this product?", "Confirm Delete", JOptionPane.YES_NO_OPTION);
+        if (confirm != JOptionPane.YES_OPTION) return;
+        ProductDAO dao = new ProductDAO();
+        try {
+            dao.deleteById(id);
+            loadProducts(searchField.getText());
+            JOptionPane.showMessageDialog(this, "Product deleted.", "Success", JOptionPane.INFORMATION_MESSAGE);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Failed to delete product.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void setupUserDisplay() {
+        javax.swing.JPanel userPanel = new javax.swing.JPanel();
+        userPanel.setBackground(new java.awt.Color(209, 242, 235));
+        userPanel.setBorder(javax.swing.BorderFactory.createEmptyBorder(8, 12, 8, 12));
+        userPanel.setLayout(new java.awt.BorderLayout(0, 4));
+        javax.swing.JLabel nameLbl = new javax.swing.JLabel();
+        javax.swing.JLabel emailLbl = new javax.swing.JLabel();
+        nameLbl.setFont(new java.awt.Font("Tahoma", 1, 12));
+        emailLbl.setFont(new java.awt.Font("Tahoma", 0, 11));
+        emailLbl.setForeground(new java.awt.Color(80, 80, 80));
+        Customer u = SessionManager.getCurrentUser();
+        if (u != null) {
+            nameLbl.setText(u.getFullName() != null ? u.getFullName() : "User");
+            emailLbl.setText(u.getEmail() != null ? u.getEmail() : "");
+        } else {
+            nameLbl.setText("Admin");
+            emailLbl.setText("admin@qualimed.com");
+        }
+        userPanel.add(nameLbl, java.awt.BorderLayout.NORTH);
+        userPanel.add(emailLbl, java.awt.BorderLayout.CENTER);
+        jPanel1.add(userPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 200, 60));
     }
 
     private void loadProducts(String searchTerm) {
