@@ -15,6 +15,10 @@ public class ProfileAdmin extends javax.swing.JFrame {
      */
     public ProfileAdmin() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupProfileFields();
+        loadProfile();
     }
 
     /**
@@ -362,6 +366,53 @@ public class ProfileAdmin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
+
+    private javax.swing.JLabel lblEmail;
+    private javax.swing.JLabel lblFullName;
+    private javax.swing.JLabel lblContact;
+    private javax.swing.JLabel lblAddress;
+
+    private void setupProfileFields() {
+        lblEmail = new javax.swing.JLabel();
+        lblFullName = new javax.swing.JLabel();
+        lblContact = new javax.swing.JLabel();
+        lblAddress = new javax.swing.JLabel();
+
+        jPanel8.setLayout(new java.awt.BorderLayout());
+        jPanel8.add(lblEmail, java.awt.BorderLayout.CENTER);
+
+        jPanel9.setLayout(new java.awt.BorderLayout());
+        jPanel9.add(lblFullName, java.awt.BorderLayout.CENTER);
+
+        jPanel10.setLayout(new java.awt.BorderLayout());
+        jPanel10.add(lblContact, java.awt.BorderLayout.CENTER);
+
+        jPanel11.setLayout(new java.awt.BorderLayout());
+        jPanel11.add(lblAddress, java.awt.BorderLayout.CENTER);
+    }
+
+    private void loadProfile() {
+        Customer user = SessionManager.getCurrentUser();
+        if (user == null) {
+            lblEmail.setText("admin@qualimed.com");
+            lblFullName.setText("Administrator");
+            lblContact.setText("-");
+            lblAddress.setText("-");
+        } else {
+            lblEmail.setText(user.getEmail());
+            lblFullName.setText(user.getFullName());
+            lblContact.setText(user.getContactNumber());
+            lblAddress.setText(user.getAddress());
+        }
+    }
 
     /**
      * @param args the command line arguments

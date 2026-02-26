@@ -1,8 +1,6 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  *
@@ -15,6 +13,9 @@ public class UserDashboard extends javax.swing.JFrame {
      */
     public UserDashboard() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupSidebarHighlight();
     }
 
     /**
@@ -266,6 +267,40 @@ public class UserDashboard extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
+
+    private void setupSidebarHighlight() {
+        MouseAdapter adapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resetSidebarHighlight();
+                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
+                label.setOpaque(true);
+                label.setBackground(new Color(209, 242, 235));
+            }
+        };
+
+        jLabel5.addMouseListener(adapter);   // Dashboard
+        jLabel9.addMouseListener(adapter);   // Products
+        jLabel3.addMouseListener(adapter);   // Cart
+        jLabel11.addMouseListener(adapter);  // Orders
+        jLabel12.addMouseListener(adapter);  // Profile
+    }
+
+    private void resetSidebarHighlight() {
+        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel3, jLabel11, jLabel12};
+        for (javax.swing.JLabel lbl : labels) {
+            lbl.setOpaque(false);
+            lbl.setBackground(null);
+        }
+    }
 
     /**
      * @param args the command line arguments

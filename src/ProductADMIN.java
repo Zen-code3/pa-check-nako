@@ -1,8 +1,11 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -15,6 +18,12 @@ public class ProductADMIN extends javax.swing.JFrame {
      */
     public ProductADMIN() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupProductsTable();
+        setupSearch();
+        loadProducts(null);
+        setupSidebarHighlight();
     }
 
     /**
@@ -299,6 +308,120 @@ public class ProductADMIN extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+
+        // "+ Add Product" clickable card
+        java.awt.event.MouseAdapter openAdd = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                new AddproductAdmin().setVisible(true);
+                ProductADMIN.this.dispose();
+            }
+        };
+        jPanel11.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel13.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jPanel11.addMouseListener(openAdd);
+        jLabel13.addMouseListener(openAdd);
+    }
+
+    private JTable productTable;
+    private JTextField searchField;
+
+    private void setupProductsTable() {
+        productTable = new JTable();
+        productTable.setModel(new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"ID", "Name", "Category", "Price", "Stock", "Expiry"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
+
+        jPanel6.removeAll();
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jPanel6.add(new JScrollPane(productTable), java.awt.BorderLayout.CENTER);
+        jPanel6.revalidate();
+        jPanel6.repaint();
+    }
+
+    private void setupSearch() {
+        searchField = new JTextField();
+        javax.swing.JButton searchButton = new javax.swing.JButton("Search");
+        searchButton.addActionListener(e -> loadProducts(searchField.getText()));
+
+        jPanel12.removeAll();
+        jPanel12.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.JPanel inner = new javax.swing.JPanel(new java.awt.BorderLayout(8, 0));
+        inner.setOpaque(false);
+        inner.add(searchField, java.awt.BorderLayout.CENTER);
+        inner.add(searchButton, java.awt.BorderLayout.EAST);
+
+        jPanel12.add(inner, java.awt.BorderLayout.CENTER);
+        jPanel12.revalidate();
+        jPanel12.repaint();
+    }
+
+    private void loadProducts(String searchTerm) {
+        if (productTable == null) {
+            return;
+        }
+        DefaultTableModel model = (DefaultTableModel) productTable.getModel();
+        model.setRowCount(0);
+
+        ProductDAO dao = new ProductDAO();
+        try {
+            java.util.List<Product> products = dao.findAll(searchTerm);
+            java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            for (Product p : products) {
+                String expiry = p.getExpiryDate() != null ? fmt.format(p.getExpiryDate()) : "";
+                model.addRow(new Object[]{
+                        p.getProductId(),
+                        p.getProductName(),
+                        p.getCategory(),
+                        String.format("₱%.2f", p.getPrice()),
+                        p.getStockQuantity(),
+                        expiry
+                });
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void setupSidebarHighlight() {
+        MouseAdapter adapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resetSidebarHighlight();
+                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
+                label.setOpaque(true);
+                label.setBackground(new Color(209, 242, 235));
+            }
+        };
+
+        jLabel5.addMouseListener(adapter);
+        jLabel9.addMouseListener(adapter);
+        jLabel10.addMouseListener(adapter);
+        jLabel11.addMouseListener(adapter);
+        jLabel12.addMouseListener(adapter);
+    }
+
+    private void resetSidebarHighlight() {
+        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel10, jLabel11, jLabel12};
+        for (javax.swing.JLabel lbl : labels) {
+            lbl.setOpaque(false);
+            lbl.setBackground(null);
+        }
+    }
 
     /**
      * @param args the command line arguments

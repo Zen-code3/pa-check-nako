@@ -1,8 +1,12 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -15,6 +19,12 @@ public class UserAdmin extends javax.swing.JFrame {
      */
     public UserAdmin() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupUsersTable();
+        setupUserSearch();
+        loadUsers(null);
+        setupSidebarHighlight();
     }
 
     /**
@@ -266,6 +276,151 @@ public class UserAdmin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
+
+    private JTable userTable;
+    private JTextField userSearchField;
+
+    private void setupUsersTable() {
+        userTable = new JTable();
+        userTable.setModel(new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"ID", "Name", "Email", "Contact", "Address"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
+
+        jPanel6.removeAll();
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jPanel6.add(new JScrollPane(userTable), java.awt.BorderLayout.CENTER);
+        jPanel6.revalidate();
+        jPanel6.repaint();
+    }
+
+    private void setupUserSearch() {
+        userSearchField = new JTextField();
+        javax.swing.JButton searchButton = new javax.swing.JButton("Search");
+        javax.swing.JButton deleteButton = new javax.swing.JButton("Delete Selected");
+
+        searchButton.addActionListener(e -> loadUsers(userSearchField.getText()));
+        deleteButton.addActionListener(e -> deleteSelectedUser());
+
+        jPanel12.removeAll();
+        jPanel12.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.JPanel inner = new javax.swing.JPanel(new java.awt.BorderLayout(8, 0));
+        inner.setOpaque(false);
+        inner.add(userSearchField, java.awt.BorderLayout.CENTER);
+
+        javax.swing.JPanel buttons = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        buttons.setOpaque(false);
+        buttons.add(searchButton);
+        buttons.add(deleteButton);
+
+        inner.add(buttons, java.awt.BorderLayout.EAST);
+
+        jPanel12.add(inner, java.awt.BorderLayout.CENTER);
+        jPanel12.revalidate();
+        jPanel12.repaint();
+    }
+
+    private void loadUsers(String searchTerm) {
+        if (userTable == null) {
+            return;
+        }
+        DefaultTableModel model = (DefaultTableModel) userTable.getModel();
+        model.setRowCount(0);
+
+        CustomerDAO dao = new CustomerDAO();
+        try {
+            java.util.List<Customer> customers = dao.findAll(searchTerm);
+            for (Customer c : customers) {
+                model.addRow(new Object[]{
+                        c.getCustomerId(),
+                        c.getFullName(),
+                        c.getEmail(),
+                        c.getContactNumber(),
+                        c.getAddress()
+                });
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void deleteSelectedUser() {
+        int row = userTable.getSelectedRow();
+        if (row < 0) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please select a user to delete.",
+                    "No Selection",
+                    JOptionPane.WARNING_MESSAGE
+            );
+            return;
+        }
+        int id = (int) userTable.getValueAt(row, 0);
+
+        int confirm = JOptionPane.showConfirmDialog(
+                this,
+                "Are you sure you want to delete this user?",
+                "Confirm Delete",
+                JOptionPane.YES_NO_OPTION
+        );
+        if (confirm != JOptionPane.YES_OPTION) {
+            return;
+        }
+
+        CustomerDAO dao = new CustomerDAO();
+        try {
+            dao.deleteById(id);
+            loadUsers(userSearchField.getText());
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to delete user.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void setupSidebarHighlight() {
+        MouseAdapter adapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resetSidebarHighlight();
+                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
+                label.setOpaque(true);
+                label.setBackground(new Color(209, 242, 235));
+            }
+        };
+
+        jLabel5.addMouseListener(adapter);
+        jLabel9.addMouseListener(adapter);
+        jLabel10.addMouseListener(adapter);
+        jLabel11.addMouseListener(adapter);
+        jLabel12.addMouseListener(adapter);
+    }
+
+    private void resetSidebarHighlight() {
+        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel10, jLabel11, jLabel12};
+        for (javax.swing.JLabel lbl : labels) {
+            lbl.setOpaque(false);
+            lbl.setBackground(null);
+        }
+    }
 
     /**
      * @param args the command line arguments

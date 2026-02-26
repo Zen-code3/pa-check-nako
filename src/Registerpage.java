@@ -1,8 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -15,6 +12,7 @@ public class Registerpage extends javax.swing.JFrame {
      */
     public Registerpage() {
         initComponents();
+        initActions();
     }
 
     /**
@@ -147,6 +145,93 @@ public class Registerpage extends javax.swing.JFrame {
     private void jTextField4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField4ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField4ActionPerformed
+
+    private void initActions() {
+        // "Create Account" button
+        jButton1.addActionListener(e -> handleCreateAccount());
+    }
+
+    private void handleCreateAccount() {
+        String fullName = jTextField2.getText().trim();
+        String email = jTextField3.getText().trim();
+        String password = new String(jPasswordField1.getPassword());
+        String contact = jTextField4.getText().trim();
+        String address = jTextField1.getText().trim();
+
+        // Basic validation
+        if (fullName.isEmpty() || email.isEmpty() || password.isEmpty()
+                || contact.isEmpty() || address.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please fill in all fields.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (!email.contains("@") || !email.contains(".")) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter a valid email address.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        if (password.length() < 6) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Password must be at least 6 characters.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        try {
+            Customer existing = customerDAO.findByEmail(email);
+            if (existing != null) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "An account with this email already exists.",
+                        "Registration Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            Customer customer = new Customer();
+            customer.setFullName(fullName);
+            customer.setEmail(email);
+            customer.setPasswordHash(PasswordUtil.hashPassword(password));
+            customer.setContactNumber(contact);
+            customer.setAddress(address);
+
+            customerDAO.create(customer);
+
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Account has been created.",
+                    "Registration Successful",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            // Go to login page
+            new LogInpage().setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "An error occurred while creating the account.\nPlease check your database connection.",
+                    "Registration Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
 
     /**
      * @param args the command line arguments

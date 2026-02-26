@@ -1,8 +1,7 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /**
  *
@@ -15,6 +14,10 @@ public class AdminDashboard extends javax.swing.JFrame {
      */
     public AdminDashboard() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        loadStats();
+        setupSidebarHighlight();
     }
 
     /**
@@ -306,6 +309,59 @@ public class AdminDashboard extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
+
+    private void loadStats() {
+        CustomerDAO customerDAO = new CustomerDAO();
+        ProductDAO productDAO = new ProductDAO();
+        OrderDAO orderDAO = new OrderDAO();
+        try {
+            int totalUsers = customerDAO.countAll();
+            int totalProducts = productDAO.countAll();
+            int totalOrders = orderDAO.countAll();
+            double totalRevenue = orderDAO.getTotalRevenue();
+
+            jLabel6.setText("Total Users: " + totalUsers);
+            jLabel8.setText("Total Products: " + totalProducts);
+            jLabel7.setText("Total Orders: " + totalOrders);
+            jLabel4.setText("Total Revenue: ₱" + String.format("%.2f", totalRevenue));
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void setupSidebarHighlight() {
+        MouseAdapter adapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resetSidebarHighlight();
+                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
+                label.setOpaque(true);
+                label.setBackground(new Color(209, 242, 235));
+            }
+        };
+
+        jLabel5.addMouseListener(adapter);
+        jLabel9.addMouseListener(adapter);
+        jLabel10.addMouseListener(adapter);
+        jLabel11.addMouseListener(adapter);
+        jLabel12.addMouseListener(adapter);
+    }
+
+    private void resetSidebarHighlight() {
+        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel10, jLabel11, jLabel12};
+        for (javax.swing.JLabel lbl : labels) {
+            lbl.setOpaque(false);
+            lbl.setBackground(null);
+        }
+    }
 
     /**
      * @param args the command line arguments

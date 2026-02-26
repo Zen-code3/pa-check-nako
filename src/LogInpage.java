@@ -1,8 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import javax.swing.JOptionPane;
 
 /**
  *
@@ -15,6 +12,7 @@ public class LogInpage extends javax.swing.JFrame {
      */
     public LogInpage() {
         initComponents();
+        initActions();
     }
 
     /**
@@ -111,6 +109,87 @@ public class LogInpage extends javax.swing.JFrame {
     private void jTextField3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jTextField3ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jTextField3ActionPerformed
+
+    private void initActions() {
+        // "Sign In" button
+        jButton1.addActionListener(e -> handleLogin());
+
+        // "Register" label
+        jLabel6.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel6.addMouseListener(new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                openRegister();
+            }
+        });
+    }
+
+    private void handleLogin() {
+        String email = jTextField3.getText().trim();
+        String password = new String(jPasswordField1.getPassword());
+
+        if (email.isEmpty() || password.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please enter both email and password.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        // Hard-coded admin account (optional) – adjust as needed
+        if (email.equalsIgnoreCase("admin@qualimed.com") && password.equals("admin123")) {
+            SessionManager.login(null, true);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Admin login successful.",
+                    "Login",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            new AdminDashboard().setVisible(true);
+            this.dispose();
+            return;
+        }
+
+        CustomerDAO customerDAO = new CustomerDAO();
+        try {
+            Customer user = customerDAO.findByEmail(email);
+            if (user == null || !PasswordUtil.verifyPassword(password, user.getPasswordHash())) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Invalid email or password.",
+                        "Login Failed",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+
+            SessionManager.login(user, false);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Login successful.",
+                    "Login",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+
+            new UserDashboard().setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "An error occurred while trying to log in.\nPlease check your database connection.",
+                    "Login Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void openRegister() {
+        new Registerpage().setVisible(true);
+        this.dispose();
+    }
 
     /**
      * @param args the command line arguments

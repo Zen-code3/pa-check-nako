@@ -1,6 +1,7 @@
 
-import javax.swing.border.Border;
-import javax.swing.border.LineBorder;
+import java.awt.Cursor;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -19,6 +20,7 @@ public class LandingPage extends javax.swing.JFrame {
      */
     public LandingPage() {
         initComponents();
+        setupNavigation();
     }
 
     /**
@@ -143,7 +145,6 @@ public class LandingPage extends javax.swing.JFrame {
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
         jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Create Account >");
-        jButton2.setBorder(jButton1.setBorder(new javax.swing.border.LineBorder(new java.awt.Color(34, 156, 129), 1, true)););
         jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 670, 160, 60));
 
         jButton3.setBackground(new java.awt.Color(255, 255, 255));
@@ -173,8 +174,36 @@ public class LandingPage extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
-        // TODO add your handling code here:
+        openLogin();
     }//GEN-LAST:event_jButton3ActionPerformed
+
+    private void setupNavigation() {
+        // "Create Account" button -> Register page
+        jButton2.addActionListener(e -> openRegister());
+
+        // Top navbar labels "Log In" and "Get Started" -> Login page
+        jLabel2.setCursor(new Cursor(Cursor.HAND_CURSOR));
+        jLabel4.setCursor(new Cursor(Cursor.HAND_CURSOR));
+
+        MouseAdapter navToLogin = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                openLogin();
+            }
+        };
+        jLabel2.addMouseListener(navToLogin);
+        jLabel4.addMouseListener(navToLogin);
+    }
+
+    private void openLogin() {
+        new LogInpage().setVisible(true);
+        this.dispose();
+    }
+
+    private void openRegister() {
+        new Registerpage().setVisible(true);
+        this.dispose();
+    }
 
     /**
      * @param args the command line arguments
@@ -229,14 +258,4 @@ public class LandingPage extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel3;
     private javax.swing.JPanel jPanel4;
     // End of variables declaration//GEN-END:variables
-
-    private static class jButton1 {
-
-        private static Border setBorder(LineBorder lineBorder) {
-            throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-        }
-
-        public jButton1() {
-        }
-    }
 }

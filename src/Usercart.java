@@ -15,6 +15,8 @@ public class Usercart extends javax.swing.JFrame {
      */
     public Usercart() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
     }
 
     /**
@@ -188,6 +190,14 @@ public class Usercart extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
 
     /**
      * @param args the command line arguments

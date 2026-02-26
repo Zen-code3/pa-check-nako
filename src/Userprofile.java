@@ -1,8 +1,5 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.awt.BorderLayout;
+import javax.swing.JLabel;
 
 /**
  *
@@ -15,6 +12,10 @@ public class Userprofile extends javax.swing.JFrame {
      */
     public Userprofile() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupProfileFields();
+        loadProfile();
     }
 
     /**
@@ -362,6 +363,54 @@ public class Userprofile extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
+
+    private JLabel lblEmail;
+    private JLabel lblFullName;
+    private JLabel lblContact;
+    private JLabel lblAddress;
+
+    private void setupProfileFields() {
+        lblEmail = new JLabel();
+        lblFullName = new JLabel();
+        lblContact = new JLabel();
+        lblAddress = new JLabel();
+
+        jPanel8.setLayout(new BorderLayout());
+        jPanel8.add(lblEmail, BorderLayout.CENTER);
+
+        jPanel9.setLayout(new BorderLayout());
+        jPanel9.add(lblFullName, BorderLayout.CENTER);
+
+        jPanel10.setLayout(new BorderLayout());
+        jPanel10.add(lblContact, BorderLayout.CENTER);
+
+        jPanel11.setLayout(new BorderLayout());
+        jPanel11.add(lblAddress, BorderLayout.CENTER);
+    }
+
+    private void loadProfile() {
+        Customer user = SessionManager.getCurrentUser();
+        if (user == null) {
+            lblEmail.setText("");
+            lblFullName.setText("");
+            lblContact.setText("");
+            lblAddress.setText("");
+            return;
+        }
+
+        lblEmail.setText(user.getEmail());
+        lblFullName.setText(user.getFullName());
+        lblContact.setText(user.getContactNumber());
+        lblAddress.setText(user.getAddress());
+    }
 
     /**
      * @param args the command line arguments

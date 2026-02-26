@@ -1,8 +1,13 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import java.awt.Color;
+import java.awt.event.MouseAdapter;
+import java.awt.event.MouseEvent;
+import javax.swing.JComboBox;
+import javax.swing.JOptionPane;
+import javax.swing.JScrollPane;
+import javax.swing.JTable;
+import javax.swing.JTextField;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -15,6 +20,12 @@ public class AdminOrders extends javax.swing.JFrame {
      */
     public AdminOrders() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupOrdersTable();
+        setupSearchAndFilter();
+        loadOrders(null, "All");
+        setupSidebarHighlight();
     }
 
     /**
@@ -276,6 +287,128 @@ public class AdminOrders extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        jButton1.addActionListener(e -> {
+            SessionManager.logout();
+            new LandingPage().setVisible(true);
+            this.dispose();
+        });
+    }
+
+    private JTable ordersTable;
+    private JTextField orderSearchField;
+    private JComboBox<String> statusFilter;
+
+    private void setupOrdersTable() {
+        ordersTable = new JTable();
+        ordersTable.setModel(new DefaultTableModel(
+                new Object[][]{},
+                new String[]{"Order ID", "Customer ID", "Date", "Total", "Status", "Products"}
+        ) {
+            @Override
+            public boolean isCellEditable(int row, int column) {
+                return false;
+            }
+        });
+
+        jPanel6.removeAll();
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jPanel6.add(new JScrollPane(ordersTable), java.awt.BorderLayout.CENTER);
+        jPanel6.revalidate();
+        jPanel6.repaint();
+    }
+
+    private void setupSearchAndFilter() {
+        orderSearchField = new JTextField();
+        statusFilter = new JComboBox<>(new String[]{"All", "Completed", "Pending", "Processing", "Cancelled"});
+
+        javax.swing.JButton searchButton = new javax.swing.JButton("Search");
+        searchButton.addActionListener(e -> loadOrders(orderSearchField.getText(), (String) statusFilter.getSelectedItem()));
+
+        jPanel12.removeAll();
+        jPanel12.setLayout(new java.awt.BorderLayout());
+
+        javax.swing.JPanel inner = new javax.swing.JPanel(new java.awt.BorderLayout(8, 0));
+        inner.setOpaque(false);
+        inner.add(orderSearchField, java.awt.BorderLayout.CENTER);
+
+        javax.swing.JPanel right = new javax.swing.JPanel(new java.awt.FlowLayout(java.awt.FlowLayout.RIGHT, 8, 0));
+        right.setOpaque(false);
+        right.add(statusFilter);
+        right.add(searchButton);
+
+        inner.add(right, java.awt.BorderLayout.EAST);
+
+        jPanel12.add(inner, java.awt.BorderLayout.CENTER);
+        jPanel12.revalidate();
+        jPanel12.repaint();
+    }
+
+    private void loadOrders(String searchTerm, String status) {
+        if (ordersTable == null) {
+            return;
+        }
+        DefaultTableModel model = (DefaultTableModel) ordersTable.getModel();
+        model.setRowCount(0);
+
+        OrderDAO dao = new OrderDAO();
+        try {
+            java.util.List<Order> orders = dao.findAll(searchTerm, status);
+            java.text.SimpleDateFormat fmt = new java.text.SimpleDateFormat("yyyy-MM-dd");
+            for (Order o : orders) {
+                String date = o.getOrderDate() != null ? fmt.format(o.getOrderDate()) : "";
+                String products = "";
+                try {
+                    products = dao.getProductSummary(o.getOrderId());
+                } catch (SQLException exInner) {
+                    exInner.printStackTrace();
+                }
+                model.addRow(new Object[]{
+                        o.getOrderId(),
+                        o.getCustomerId(),
+                        date,
+                        String.format("₱%.2f", o.getTotalAmount()),
+                        o.getStatus(),
+                        products
+                });
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Failed to load orders.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
+
+    private void setupSidebarHighlight() {
+        MouseAdapter adapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resetSidebarHighlight();
+                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
+                label.setOpaque(true);
+                label.setBackground(new Color(209, 242, 235));
+            }
+        };
+
+        jLabel5.addMouseListener(adapter);
+        jLabel9.addMouseListener(adapter);
+        jLabel10.addMouseListener(adapter);
+        jLabel11.addMouseListener(adapter);
+        jLabel12.addMouseListener(adapter);
+    }
+
+    private void resetSidebarHighlight() {
+        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel10, jLabel11, jLabel12};
+        for (javax.swing.JLabel lbl : labels) {
+            lbl.setOpaque(false);
+            lbl.setBackground(null);
+        }
+    }
 
     /**
      * @param args the command line arguments

@@ -1,8 +1,8 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.sql.SQLException;
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
 
 /**
  *
@@ -15,6 +15,9 @@ public class AddproductAdmin extends javax.swing.JFrame {
      */
     public AddproductAdmin() {
         initComponents();
+        SessionManager.requireLogin(this);
+        initActions();
+        setupInputs();
     }
 
     /**
@@ -252,6 +255,130 @@ public class AddproductAdmin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void initActions() {
+        // No sign-out button here; session guard is enough for now.
+
+        // "Create Product" card behaves like a button
+        java.awt.event.MouseAdapter createProductClick = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                handleCreateProduct();
+            }
+        };
+        jPanel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel8.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jPanel8.addMouseListener(createProductClick);
+        jLabel8.addMouseListener(createProductClick);
+    }
+
+    private JTextField txtDescription;
+    private JTextField txtCategory;
+    private JTextField txtPrice;
+    private JTextField txtStock;
+    private JTextField txtExpiry;
+
+    private void setupInputs() {
+        txtDescription = new JTextField();
+        jPanel3.setLayout(new java.awt.BorderLayout());
+        jPanel3.add(txtDescription, java.awt.BorderLayout.CENTER);
+
+        txtCategory = new JTextField();
+        jPanel4.setLayout(new java.awt.BorderLayout());
+        jPanel4.add(txtCategory, java.awt.BorderLayout.CENTER);
+
+        txtPrice = new JTextField();
+        jPanel5.setLayout(new java.awt.BorderLayout());
+        jPanel5.add(txtPrice, java.awt.BorderLayout.CENTER);
+
+        txtStock = new JTextField();
+        jPanel6.setLayout(new java.awt.BorderLayout());
+        jPanel6.add(txtStock, java.awt.BorderLayout.CENTER);
+
+        txtExpiry = new JTextField();
+        jPanel7.setLayout(new java.awt.BorderLayout());
+        jPanel7.add(txtExpiry, java.awt.BorderLayout.CENTER);
+    }
+
+    private void handleCreateProduct() {
+        String name = jTextField1.getText().trim();
+        String description = txtDescription.getText().trim();
+        String category = txtCategory.getText().trim();
+        String priceText = txtPrice.getText().trim();
+        String stockText = txtStock.getText().trim();
+        String expiryText = txtExpiry.getText().trim();
+
+        if (name.isEmpty() || description.isEmpty() || category.isEmpty()
+                || priceText.isEmpty() || stockText.isEmpty()) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Please fill in all required fields.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        double price;
+        int stock;
+        try {
+            price = Double.parseDouble(priceText);
+            stock = Integer.parseInt(stockText);
+        } catch (NumberFormatException ex) {
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Price must be a number and stock must be an integer.",
+                    "Validation Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+            return;
+        }
+
+        java.util.Date expiryDate = null;
+        if (!expiryText.isEmpty()) {
+            try {
+                expiryDate = new SimpleDateFormat("yyyy-MM-dd").parse(expiryText);
+            } catch (ParseException ex) {
+                JOptionPane.showMessageDialog(
+                        this,
+                        "Expiry date must be in format yyyy-MM-dd.",
+                        "Validation Error",
+                        JOptionPane.ERROR_MESSAGE
+                );
+                return;
+            }
+        }
+
+        Product product = new Product();
+        product.setProductName(name);
+        product.setDescription(description);
+        product.setCategory(category);
+        product.setPrice(price);
+        product.setStockQuantity(stock);
+        product.setExpiryDate(expiryDate);
+        product.setImagePath(null);
+
+        ProductDAO dao = new ProductDAO();
+        try {
+            dao.create(product);
+            JOptionPane.showMessageDialog(
+                    this,
+                    "Product has been created.",
+                    "Success",
+                    JOptionPane.INFORMATION_MESSAGE
+            );
+            new ProductADMIN().setVisible(true);
+            this.dispose();
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(
+                    this,
+                    "An error occurred while creating the product.\nPlease check your database connection.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE
+            );
+        }
+    }
 
     /**
      * @param args the command line arguments
