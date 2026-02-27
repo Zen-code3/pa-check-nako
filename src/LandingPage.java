@@ -143,8 +143,8 @@ public class LandingPage extends javax.swing.JFrame {
 
         jButton2.setBackground(new java.awt.Color(34, 156, 129));
         jButton2.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
-        jButton2.setForeground(new java.awt.Color(255, 255, 255));
         jButton2.setText("Create Account >");
+        jButton2.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
         jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 670, 160, 60));
 
         jButton3.setBackground(new java.awt.Color(255, 255, 255));
@@ -231,6 +231,13 @@ public class LandingPage extends javax.swing.JFrame {
             java.util.logging.Logger.getLogger(LandingPage.class.getName()).log(java.util.logging.Level.SEVERE, null, ex);
         }
         //</editor-fold>
+
+        /* Initialize database tables (Customer, Product, Order) if they do not exist */
+        try {
+            qualimed.database.Database.initSchema();
+        } catch (java.sql.SQLException ex) {
+            System.err.println("Database schema init failed: " + ex.getMessage());
+        }
 
         /* Create and display the form */
         java.awt.EventQueue.invokeLater(new Runnable() {

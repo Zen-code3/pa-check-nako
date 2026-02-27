@@ -1,5 +1,6 @@
 import javax.swing.JFrame;
 import javax.swing.JOptionPane;
+import qualimed.model.Customer;
 
 /**
  * Simple in-memory session manager for the currently logged-in user.

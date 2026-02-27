@@ -1,12 +1,20 @@
 import java.awt.Color;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import java.util.List;
+import java.sql.SQLException;
+import qualimed.dao.OrderDAO;
+import qualimed.dao.ProductDAO;
+import qualimed.model.Customer;
+import qualimed.model.Order;
 
 /**
  *
  * @author ilove
  */
 public class UserDashboard extends javax.swing.JFrame {
+
+    private javax.swing.JLabel cartNavLabel;
 
     /**
      * Creates new form UserDashboard
@@ -16,6 +24,7 @@ public class UserDashboard extends javax.swing.JFrame {
         SessionManager.requireLogin(this);
         initActions();
         setupSidebarHighlight();
+        loadDashboardStats();
     }
 
     /**
@@ -40,12 +49,12 @@ public class UserDashboard extends javax.swing.JFrame {
         jLabel7 = new javax.swing.JLabel();
         jPanel10 = new javax.swing.JPanel();
         jLabel8 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
+        jButton5 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -209,26 +218,6 @@ public class UserDashboard extends javax.swing.JFrame {
 
         jPanel1.add(jPanel10, new org.netbeans.lib.awtextra.AbsoluteConstraints(620, 130, 220, -1));
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel5.setText("Dashboard");
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 140, -1, -1));
-
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel9.setText("Products");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 190, -1, -1));
-
-        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel11.setText("Orders");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, -1, -1));
-
-        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel12.setText("Profile");
-        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, -1));
-
         jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -250,6 +239,28 @@ public class UserDashboard extends javax.swing.JFrame {
         jButton1.setBorder(javax.swing.BorderFactory.createEmptyBorder(1, 1, 1, 1));
         jPanel1.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 480, 80, 30));
 
+        jButton5.setText("Profile");
+        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, -1));
+
+        jButton4.setText("Orders");
+        jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 230, -1, -1));
+
+        jButton6.setText("Dashboard");
+        jButton6.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton6ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, -1, -1));
+
+        jButton7.setText("Products");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, -1, -1));
+
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
         layout.setHorizontalGroup(
@@ -268,12 +279,66 @@ public class UserDashboard extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton6ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton7ActionPerformed
+
     private void initActions() {
         jButton1.addActionListener(e -> {
             SessionManager.logout();
             new LandingPage().setVisible(true);
             this.dispose();
         });
+        // Cart nav - add label if not present
+        javax.swing.JLabel cartLabel = new javax.swing.JLabel("Cart");
+        cartLabel.setFont(new java.awt.Font("Tahoma", 1, 12));
+        cartLabel.setForeground(new java.awt.Color(133, 133, 133));
+        cartLabel.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        cartLabel.addMouseListener(new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                new Usercart().setVisible(true);
+                UserDashboard.this.dispose();
+            }
+        });
+        jPanel1.add(cartLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, -1, -1));
+        this.cartNavLabel = cartLabel;
+        setupSidebarHighlightForCart(cartLabel);
+    }
+
+    private void loadDashboardStats() {
+        Customer u = SessionManager.getCurrentUser();
+        if (u == null) return;
+        OrderDAO orderDAO = new OrderDAO();
+        ProductDAO productDAO = new ProductDAO();
+        try {
+            List<Order> orders = orderDAO.findByCustomer(u.getCustomerId());
+            int totalOrders = orders.size();
+            long pendingOrders = orders.stream().filter(o -> o.getStatus() != null && o.getStatus().equalsIgnoreCase("Pending")).count();
+            int productsAvailable = productDAO.countAll();
+            jLabel6.setText("Total Orders: " + totalOrders);
+            jLabel8.setText("Pending Orders: " + pendingOrders);
+            jLabel7.setText("Products Available: " + productsAvailable);
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void setupSidebarHighlightForCart(javax.swing.JLabel cartLabel) {
+        MouseAdapter adapter = new MouseAdapter() {
+            @Override
+            public void mouseClicked(MouseEvent e) {
+                resetSidebarHighlight();
+                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
+                label.setOpaque(true);
+                label.setBackground(new Color(209, 242, 235));
+            }
+        };
+        cartLabel.addMouseListener(adapter);
     }
 
     private void setupSidebarHighlight() {
@@ -298,6 +363,10 @@ public class UserDashboard extends javax.swing.JFrame {
         for (javax.swing.JLabel lbl : labels) {
             lbl.setOpaque(false);
             lbl.setBackground(null);
+        }
+        if (cartNavLabel != null) {
+            cartNavLabel.setOpaque(false);
+            cartNavLabel.setBackground(null);
         }
     }
 
@@ -338,15 +407,15 @@ public class UserDashboard extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel5;
     private javax.swing.JLabel jLabel6;
     private javax.swing.JLabel jLabel7;
     private javax.swing.JLabel jLabel8;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel10;
     private javax.swing.JPanel jPanel2;

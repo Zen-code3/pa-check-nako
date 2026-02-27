@@ -7,6 +7,9 @@ import javax.swing.JScrollPane;
 import javax.swing.JTable;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
+import qualimed.dao.ProductDAO;
+import qualimed.model.Customer;
+import qualimed.model.Product;
 
 /**
  *
@@ -311,6 +314,13 @@ public class ProductADMIN extends javax.swing.JFrame {
         pack();
     }// </editor-fold>//GEN-END:initComponents
 
+    
+    private AdminDashboard parentDashboard;
+
+public ProductADMIN(AdminDashboard parent) {
+    initComponents();
+    this.parentDashboard = parent;
+}
     private void initActions() {
         jButton1.addActionListener(e -> {
             SessionManager.logout();

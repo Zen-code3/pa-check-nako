@@ -1,5 +1,8 @@
 import java.sql.SQLException;
 import javax.swing.JOptionPane;
+import qualimed.dao.CustomerDAO;
+import qualimed.model.Customer;
+import qualimed.util.PasswordUtil;
 
 /**
  *
@@ -39,6 +42,7 @@ public class Registerpage extends javax.swing.JFrame {
         jTextField4 = new javax.swing.JTextField();
         jLabel7 = new javax.swing.JLabel();
         jButton1 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -83,8 +87,6 @@ public class Registerpage extends javax.swing.JFrame {
         jLabel5.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
         jLabel5.setText("Password");
         jPanel3.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(30, 330, -1, -1));
-
-        jPasswordField1.setText("jPasswordField1");
         jPanel3.add(jPasswordField1, new org.netbeans.lib.awtextra.AbsoluteConstraints(60, 360, 320, 40));
 
         jTextField3.addActionListener(new java.awt.event.ActionListener() {
@@ -113,6 +115,9 @@ public class Registerpage extends javax.swing.JFrame {
         jButton1.setForeground(new java.awt.Color(34, 156, 29));
         jButton1.setText("Create Account");
         jPanel3.add(jButton1, new org.netbeans.lib.awtextra.AbsoluteConstraints(170, 580, -1, -1));
+
+        jButton2.setText("<");
+        jPanel3.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(320, 580, -1, -1));
 
         jPanel2.add(jPanel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 10, 420, 620));
 
@@ -270,6 +275,7 @@ public class Registerpage extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;

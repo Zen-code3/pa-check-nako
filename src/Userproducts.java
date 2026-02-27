@@ -1,8 +1,16 @@
-/*
- * To change this license header, choose License Headers in Project Properties.
- * To change this template file, choose Tools | Templates
- * and open the template in the editor.
- */
+import java.awt.BorderLayout;
+import java.awt.GridLayout;
+import java.sql.SQLException;
+import java.util.List;
+import javax.swing.JButton;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextField;
+import qualimed.dao.ProductDAO;
+import qualimed.model.Customer;
+import qualimed.model.Product;
 
 /**
  *
@@ -10,13 +18,20 @@
  */
 public class Userproducts extends javax.swing.JFrame {
 
+    private JTextField searchField;
+    private JPanel productsPanel;
+    private JScrollPane productsScroll;
+
     /**
      * Creates new form Userproducts
      */
     public Userproducts() {
         initComponents();
         SessionManager.requireLogin(this);
+        setupSearchBar();
+        setupProductsArea();
         initActions();
+        loadProducts(null);
     }
 
     /**
@@ -35,14 +50,15 @@ public class Userproducts extends javax.swing.JFrame {
         jPanel4 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel2 = new javax.swing.JLabel();
-        jLabel5 = new javax.swing.JLabel();
-        jLabel9 = new javax.swing.JLabel();
-        jLabel11 = new javax.swing.JLabel();
-        jLabel12 = new javax.swing.JLabel();
         jPanel7 = new javax.swing.JPanel();
         jButton1 = new javax.swing.JButton();
         jPanel12 = new javax.swing.JPanel();
-        jLabel3 = new javax.swing.JLabel();
+        jButton5 = new javax.swing.JButton();
+        jButton6 = new javax.swing.JButton();
+        jButton2 = new javax.swing.JButton();
+        jButton3 = new javax.swing.JButton();
+        jButton7 = new javax.swing.JButton();
+        jButton4 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
@@ -128,26 +144,6 @@ public class Userproducts extends javax.swing.JFrame {
         jLabel2.setText(" Products");
         jPanel1.add(jLabel2, new org.netbeans.lib.awtextra.AbsoluteConstraints(210, 30, -1, -1));
 
-        jLabel5.setFont(new java.awt.Font("Tahoma", 1, 14)); // NOI18N
-        jLabel5.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel5.setText("Dashboard");
-        jPanel1.add(jLabel5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 140, -1, -1));
-
-        jLabel9.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel9.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel9.setText("Products");
-        jPanel1.add(jLabel9, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 180, -1, -1));
-
-        jLabel11.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel11.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel11.setText("My Orders");
-        jPanel1.add(jLabel11, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 240, -1, -1));
-
-        jLabel12.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel12.setForeground(new java.awt.Color(153, 153, 153));
-        jLabel12.setText("Profile");
-        jPanel1.add(jLabel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, -1));
-
         jPanel7.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(153, 153, 153)));
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -185,10 +181,38 @@ public class Userproducts extends javax.swing.JFrame {
 
         jPanel1.add(jPanel12, new org.netbeans.lib.awtextra.AbsoluteConstraints(220, 90, 750, 40));
 
-        jLabel3.setFont(new java.awt.Font("Tahoma", 1, 12)); // NOI18N
-        jLabel3.setForeground(new java.awt.Color(133, 133, 133));
-        jLabel3.setText("Cart");
-        jPanel1.add(jLabel3, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, -1, -1));
+        jButton5.setText("Profile");
+        jPanel1.add(jButton5, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, -1));
+
+        jButton6.setText("Profile");
+        jPanel1.add(jButton6, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 270, -1, -1));
+
+        jButton2.setText("My Orders");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton2, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 240, -1, -1));
+
+        jButton3.setText("Cart");
+        jPanel1.add(jButton3, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 210, -1, -1));
+
+        jButton7.setText("Products");
+        jButton7.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton7ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton7, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 180, -1, -1));
+
+        jButton4.setText("Dashboard");
+        jButton4.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton4ActionPerformed(evt);
+            }
+        });
+        jPanel1.add(jButton4, new org.netbeans.lib.awtextra.AbsoluteConstraints(40, 140, -1, -1));
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -207,6 +231,115 @@ public class Userproducts extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton2ActionPerformed
+
+    private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton7ActionPerformed
+
+    private void jButton4ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton4ActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_jButton4ActionPerformed
+
+    private void setupSearchBar() {
+        jPanel12.setLayout(new BorderLayout());
+        searchField = new JTextField("Search products...", 25);
+        searchField.setFont(new java.awt.Font("Tahoma", 0, 12));
+        searchField.addActionListener(e -> loadProducts(searchField.getText().trim()));
+        searchField.addFocusListener(new java.awt.event.FocusAdapter() {
+            @Override
+            public void focusGained(java.awt.event.FocusEvent e) {
+                if ("Search products...".equals(searchField.getText())) {
+                    searchField.setText("");
+                }
+            }
+            @Override
+            public void focusLost(java.awt.event.FocusEvent e) {
+                if (searchField.getText().isEmpty()) {
+                    searchField.setText("Search products...");
+                }
+            }
+        });
+        JButton searchBtn = new JButton("Search");
+        searchBtn.addActionListener(e -> loadProducts(searchField.getText().trim()));
+        JPanel searchRow = new JPanel(new BorderLayout(5, 0));
+        searchRow.add(searchField, BorderLayout.CENTER);
+        searchRow.add(searchBtn, BorderLayout.EAST);
+        jPanel12.add(searchRow, BorderLayout.CENTER);
+    }
+
+    private void setupProductsArea() {
+        productsPanel = new JPanel();
+        productsPanel.setLayout(new GridLayout(0, 2, 10, 10));
+        productsPanel.setBackground(new java.awt.Color(248, 249, 250));
+        productsScroll = new JScrollPane(productsPanel);
+        productsScroll.setBorder(null);
+        productsScroll.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
+        jPanel5.setLayout(new BorderLayout());
+        jPanel5.add(productsScroll, BorderLayout.CENTER);
+    }
+
+    private void loadProducts(String searchTerm) {
+        productsPanel.removeAll();
+        ProductDAO dao = new ProductDAO();
+        try {
+            String term = (searchTerm == null || searchTerm.isEmpty() || "Search products...".equals(searchTerm)) ? null : searchTerm;
+            List<Product> list = dao.findAll(term);
+            if (list.isEmpty()) {
+                JLabel noProducts = new JLabel("No Products yet");
+                noProducts.setFont(new java.awt.Font("Tahoma", 1, 16));
+                noProducts.setHorizontalAlignment(JLabel.CENTER);
+                productsPanel.setLayout(new BorderLayout());
+                productsPanel.add(noProducts, BorderLayout.CENTER);
+            } else {
+                productsPanel.setLayout(new GridLayout(0, 2, 10, 10));
+                Customer u = SessionManager.getCurrentUser();
+                int customerId = u != null ? u.getCustomerId() : 0;
+                for (Product p : list) {
+                    productsPanel.add(buildProductCard(p, customerId));
+                }
+            }
+        } catch (SQLException ex) {
+            ex.printStackTrace();
+            JOptionPane.showMessageDialog(this, "Error loading products.", "Error", JOptionPane.ERROR_MESSAGE);
+        }
+        productsPanel.revalidate();
+        productsPanel.repaint();
+    }
+
+    private JPanel buildProductCard(Product p, int customerId) {
+        JPanel card = new JPanel();
+        card.setLayout(new BorderLayout(5, 5));
+        card.setBackground(java.awt.Color.WHITE);
+        card.setBorder(javax.swing.BorderFactory.createLineBorder(new java.awt.Color(204, 204, 204)));
+        JLabel nameLbl = new JLabel(p.getProductName());
+        nameLbl.setFont(new java.awt.Font("Tahoma", 1, 12));
+        JLabel descLbl = new JLabel(p.getDescription() != null ? p.getDescription() : "");
+        descLbl.setFont(new java.awt.Font("Tahoma", 0, 11));
+        JLabel catLbl = new JLabel("Category: " + (p.getCategory() != null ? p.getCategory() : ""));
+        JLabel stockLbl = new JLabel("Stock: " + p.getStockQuantity());
+        JLabel priceLbl = new JLabel("₱" + String.format("%.2f", p.getPrice()));
+        priceLbl.setFont(new java.awt.Font("Tahoma", 1, 12));
+        JButton addBtn = new JButton("Add to Cart");
+        addBtn.setBackground(new java.awt.Color(34, 156, 129));
+        addBtn.setForeground(java.awt.Color.WHITE);
+        addBtn.addActionListener(e -> {
+            CartManager.addItem(customerId, p, 1);
+            JOptionPane.showMessageDialog(Userproducts.this, "Added to cart.", "Cart", JOptionPane.INFORMATION_MESSAGE);
+        });
+        JPanel info = new JPanel(new GridLayout(5, 1, 0, 2));
+        info.add(nameLbl);
+        info.add(descLbl);
+        info.add(catLbl);
+        info.add(stockLbl);
+        info.add(priceLbl);
+        card.add(info, BorderLayout.CENTER);
+        card.add(addBtn, BorderLayout.SOUTH);
+        return card;
+    }
 
     private void initActions() {
         jButton1.addActionListener(e -> {
@@ -253,13 +386,14 @@ public class Userproducts extends javax.swing.JFrame {
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
+    private javax.swing.JButton jButton2;
+    private javax.swing.JButton jButton3;
+    private javax.swing.JButton jButton4;
+    private javax.swing.JButton jButton5;
+    private javax.swing.JButton jButton6;
+    private javax.swing.JButton jButton7;
     private javax.swing.JLabel jLabel1;
-    private javax.swing.JLabel jLabel11;
-    private javax.swing.JLabel jLabel12;
     private javax.swing.JLabel jLabel2;
-    private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel5;
-    private javax.swing.JLabel jLabel9;
     private javax.swing.JPanel jPanel1;
     private javax.swing.JPanel jPanel12;
     private javax.swing.JPanel jPanel2;
