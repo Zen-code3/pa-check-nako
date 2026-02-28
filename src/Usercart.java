@@ -1,14 +1,15 @@
 import java.awt.BorderLayout;
 import java.awt.GridLayout;
 import java.sql.SQLException;
+import java.util.ArrayList;
 import java.util.List;
 import javax.swing.JButton;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JPanel;
 import javax.swing.JScrollPane;
-import qualimed.dao.OrderDAO;
 import qualimed.model.Customer;
+import qualimed.service.TransactionService;
 
 /**
  *
@@ -311,20 +312,34 @@ public class Usercart extends javax.swing.JFrame {
             return;
         }
         double total = CartManager.getTotal(customerId);
-        OrderDAO orderDAO = new OrderDAO();
+
+        // Confirmation step in transaction flow
+        int confirm = JOptionPane.showConfirmDialog(this,
+                "Proceed with checkout? Total: ₱" + String.format("%.2f", total),
+                "Confirm Order",
+                JOptionPane.YES_NO_OPTION,
+                JOptionPane.QUESTION_MESSAGE);
+        if (confirm != JOptionPane.YES_OPTION) return;
+
+        List<TransactionService.CartLine> lines = new ArrayList<>();
+        for (CartManager.CartItem item : items) {
+            lines.add(new TransactionService.CartLine(item.getProductId(), item.getProductName(), item.getUnitPrice(), item.getQuantity()));
+        }
+
+        TransactionService svc = new TransactionService();
         try {
-            int orderId = orderDAO.createOrder(customerId, total, "Pending");
-            for (CartManager.CartItem item : items) {
-                orderDAO.addOrderItem(orderId, item.getProductId(), item.getQuantity(), item.getUnitPrice());
-            }
+            TransactionService.TransactionResult result = svc.checkout(customerId, lines, total);
             CartManager.clear(customerId);
             refreshCart();
+            // Show transaction receipt UI
+            new TransactionReceiptDialog(this, result.getOrder(), result.getItems()).setVisible(true);
             JOptionPane.showMessageDialog(this, "Order placed successfully.", "Order", JOptionPane.INFORMATION_MESSAGE);
             new UserOrders().setVisible(true);
             this.dispose();
         } catch (SQLException ex) {
             ex.printStackTrace();
-            JOptionPane.showMessageDialog(this, "Error placing order.", "Error", JOptionPane.ERROR_MESSAGE);
+            String msg = ex.getMessage() != null ? ex.getMessage() : "Error placing order.";
+            JOptionPane.showMessageDialog(this, msg, "Transaction Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 

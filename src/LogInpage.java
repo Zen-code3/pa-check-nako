@@ -1,5 +1,10 @@
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.sql.SQLException;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
 import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 import qualimed.dao.CustomerDAO;
 import qualimed.model.Customer;
 import qualimed.util.PasswordUtil;
@@ -16,6 +21,27 @@ public class LogInpage extends javax.swing.JFrame {
     public LogInpage() {
         initComponents();
         initActions();
+        setupF6Shortcut();
+    }
+
+    private void setupF6Shortcut() {
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), "openDashboard");
+        getRootPane().getActionMap().put("openDashboard", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!SessionManager.isLoggedIn()) {
+                    SessionManager.showLoginRequiredMessage(LogInpage.this);
+                } else {
+                    if (SessionManager.isAdmin()) {
+                        new AdminDashboard().setVisible(true);
+                    } else {
+                        new UserDashboard().setVisible(true);
+                    }
+                    dispose();
+                }
+            }
+        });
     }
 
     /**
@@ -128,6 +154,12 @@ public class LogInpage extends javax.swing.JFrame {
     private void initActions() {
         // "Sign In" button
         jButton1.addActionListener(e -> handleLogin());
+
+        // Back "<" button
+        jButton2.addActionListener(e -> {
+            new LandingPage().setVisible(true);
+            dispose();
+        });
 
         // "Register" label
         jLabel6.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));

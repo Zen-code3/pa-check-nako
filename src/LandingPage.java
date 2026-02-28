@@ -1,7 +1,12 @@
-
 import java.awt.Cursor;
+import java.awt.event.ActionEvent;
+import java.awt.event.KeyEvent;
 import java.awt.event.MouseAdapter;
 import java.awt.event.MouseEvent;
+import javax.swing.AbstractAction;
+import javax.swing.JComponent;
+import javax.swing.JOptionPane;
+import javax.swing.KeyStroke;
 
 /*
  * To change this license header, choose License Headers in Project Properties.
@@ -21,6 +26,27 @@ public class LandingPage extends javax.swing.JFrame {
     public LandingPage() {
         initComponents();
         setupNavigation();
+        setupF6Shortcut();
+    }
+
+    private void setupF6Shortcut() {
+        getRootPane().getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(
+                KeyStroke.getKeyStroke(KeyEvent.VK_F6, 0), "openDashboard");
+        getRootPane().getActionMap().put("openDashboard", new AbstractAction() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                if (!SessionManager.isLoggedIn()) {
+                    SessionManager.showLoginRequiredMessage(LandingPage.this);
+                } else {
+                    if (SessionManager.isAdmin()) {
+                        new AdminDashboard().setVisible(true);
+                    } else {
+                        new UserDashboard().setVisible(true);
+                    }
+                    dispose();
+                }
+            }
+        });
     }
 
     /**

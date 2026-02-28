@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.List;
 import qualimed.database.Database;
 import qualimed.model.Order;
+import qualimed.model.OrderItem;
 
 /**
  * Data access for the Order table.
@@ -99,11 +100,10 @@ public class OrderDAO {
         return result;
     }
 
-    /** Creates a new order and returns its pk_order_id. */
-    public int createOrder(int customerId, double totalAmount, String status) throws SQLException {
+    /** Creates a new order and returns its pk_order_id (uses provided connection for transactions). */
+    public int createOrder(Connection conn, int customerId, double totalAmount, String status) throws SQLException {
         String sql = "INSERT INTO \"Order\" (FK_customer_id, order_date, total_amount, status) VALUES (?, datetime('now'), ?, ?)";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql, PreparedStatement.RETURN_GENERATED_KEYS)) {
             stmt.setInt(1, customerId);
             stmt.setDouble(2, totalAmount);
             stmt.setString(3, status != null ? status : "Pending");
@@ -117,15 +117,59 @@ public class OrderDAO {
         throw new SQLException("Failed to create order, no ID returned.");
     }
 
-    public void addOrderItem(int orderId, int productId, int quantity, double unitPrice) throws SQLException {
+    /** Non-transactional convenience: creates order using new connection. */
+    public int createOrder(int customerId, double totalAmount, String status) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            return createOrder(conn, customerId, totalAmount, status);
+        }
+    }
+
+    /** Adds an order item (uses provided connection for transactions). */
+    public void addOrderItem(Connection conn, int orderId, int productId, int quantity, double unitPrice) throws SQLException {
         String sql = "INSERT INTO Order_item (FK_order_id, FK_product_id, quantity, unit_price) VALUES (?, ?, ?, ?)";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, orderId);
             stmt.setInt(2, productId);
             stmt.setInt(3, quantity);
             stmt.setDouble(4, unitPrice);
             stmt.executeUpdate();
+        }
+    }
+
+    /** Non-transactional convenience: adds order item using new connection. */
+    public void addOrderItem(int orderId, int productId, int quantity, double unitPrice) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            addOrderItem(conn, orderId, productId, quantity, unitPrice);
+        }
+    }
+
+    /** Fetches order items for a given order (uses provided connection). */
+    public List<OrderItem> getOrderItems(Connection conn, int orderId) throws SQLException {
+        String sql = "SELECT oi.pk_order_item_id, oi.FK_order_id, oi.FK_product_id, p.product_name, oi.quantity, oi.unit_price "
+                + "FROM Order_item oi JOIN addproduct p ON oi.FK_product_id = p.pk_product_id WHERE oi.FK_order_id = ?";
+        List<OrderItem> list = new ArrayList<>();
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, orderId);
+            try (ResultSet rs = stmt.executeQuery()) {
+                while (rs.next()) {
+                    OrderItem oi = new OrderItem();
+                    oi.setOrderItemId(rs.getInt("pk_order_item_id"));
+                    oi.setOrderId(rs.getInt("FK_order_id"));
+                    oi.setProductId(rs.getInt("FK_product_id"));
+                    oi.setProductName(rs.getString("product_name"));
+                    oi.setQuantity(rs.getInt("quantity"));
+                    oi.setUnitPrice(rs.getDouble("unit_price"));
+                    list.add(oi);
+                }
+            }
+        }
+        return list;
+    }
+
+    /** Non-transactional: fetches order items for a given order. */
+    public List<OrderItem> getOrderItems(int orderId) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            return getOrderItems(conn, orderId);
         }
     }
 

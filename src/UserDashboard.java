@@ -23,7 +23,6 @@ public class UserDashboard extends javax.swing.JFrame {
         initComponents();
         SessionManager.requireLogin(this);
         initActions();
-        setupSidebarHighlight();
         loadDashboardStats();
     }
 
@@ -280,17 +279,27 @@ public class UserDashboard extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+        new UserDashboard().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+        new Userproducts().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void initActions() {
         jButton1.addActionListener(e -> {
             SessionManager.logout();
             new LandingPage().setVisible(true);
+            this.dispose();
+        });
+        jButton4.addActionListener(e -> {
+            new UserOrders().setVisible(true);
+            this.dispose();
+        });
+        jButton5.addActionListener(e -> {
+            new Userprofile().setVisible(true);
             this.dispose();
         });
         // Cart nav - add label if not present
@@ -308,6 +317,13 @@ public class UserDashboard extends javax.swing.JFrame {
         jPanel1.add(cartLabel, new org.netbeans.lib.awtextra.AbsoluteConstraints(50, 210, -1, -1));
         this.cartNavLabel = cartLabel;
         setupSidebarHighlightForCart(cartLabel);
+    }
+
+    private void resetSidebarHighlight() {
+        if (cartNavLabel != null) {
+            cartNavLabel.setOpaque(false);
+            cartNavLabel.setBackground(null);
+        }
     }
 
     private void loadDashboardStats() {
@@ -341,34 +357,6 @@ public class UserDashboard extends javax.swing.JFrame {
         cartLabel.addMouseListener(adapter);
     }
 
-    private void setupSidebarHighlight() {
-        MouseAdapter adapter = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                resetSidebarHighlight();
-                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
-                label.setOpaque(true);
-                label.setBackground(new Color(209, 242, 235));
-            }
-        };
-
-        jLabel5.addMouseListener(adapter);   // Dashboard
-        jLabel9.addMouseListener(adapter);   // Products
-        jLabel11.addMouseListener(adapter);  // Orders
-        jLabel12.addMouseListener(adapter);  // Profile
-    }
-
-    private void resetSidebarHighlight() {
-        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel11, jLabel12};
-        for (javax.swing.JLabel lbl : labels) {
-            lbl.setOpaque(false);
-            lbl.setBackground(null);
-        }
-        if (cartNavLabel != null) {
-            cartNavLabel.setOpaque(false);
-            cartNavLabel.setBackground(null);
-        }
-    }
 
     /**
      * @param args the command line arguments

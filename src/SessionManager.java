@@ -34,17 +34,24 @@ public class SessionManager {
     }
 
     /**
+     * Shows "Required login first" message. Use for F6 shortcut when not logged in.
+     */
+    public static void showLoginRequiredMessage(JFrame parent) {
+        JOptionPane.showMessageDialog(
+                parent,
+                "Required login first.",
+                "Authentication Required",
+                JOptionPane.WARNING_MESSAGE
+        );
+    }
+
+    /**
      * Guard method to ensure the user is logged in before viewing a protected frame.
      * If not logged in, it shows a message and redirects to the login page.
      */
     public static void requireLogin(JFrame currentFrame) {
         if (!isLoggedIn()) {
-            JOptionPane.showMessageDialog(
-                    currentFrame,
-                    "You have to log in first.",
-                    "Authentication Required",
-                    JOptionPane.WARNING_MESSAGE
-            );
+            showLoginRequiredMessage(currentFrame);
             if (currentFrame != null) {
                 currentFrame.dispose();
             }

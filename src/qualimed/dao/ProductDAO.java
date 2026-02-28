@@ -48,9 +48,15 @@ public class ProductDAO {
     }
 
     public Product findById(int productId) throws SQLException {
+        try (Connection conn = Database.getConnection()) {
+            return findById(conn, productId);
+        }
+    }
+
+    /** Finds product by ID (uses provided connection for transactions). */
+    public Product findById(Connection conn, int productId) throws SQLException {
         String sql = "SELECT pk_product_id, product_name, description, category, price, stock_quantity, expirydate, image_path FROM addproduct WHERE pk_product_id = ?";
-        try (Connection conn = Database.getConnection();
-             PreparedStatement stmt = conn.prepareStatement(sql)) {
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
             stmt.setInt(1, productId);
             try (ResultSet rs = stmt.executeQuery()) {
                 if (rs.next()) {
@@ -59,6 +65,16 @@ public class ProductDAO {
             }
         }
         return null;
+    }
+
+    /** Decrements stock (uses provided connection for transactions). */
+    public void decrementStock(Connection conn, int productId, int quantity) throws SQLException {
+        String sql = "UPDATE addproduct SET stock_quantity = stock_quantity - ? WHERE pk_product_id = ?";
+        try (PreparedStatement stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, quantity);
+            stmt.setInt(2, productId);
+            stmt.executeUpdate();
+        }
     }
 
     public void update(Product product) throws SQLException {
