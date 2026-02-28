@@ -367,21 +367,32 @@ public class ProfileAdmin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+        new AdminDashboard().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+        new ProductADMIN().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        new UserAdmin().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void initActions() {
         jButton1.addActionListener(e -> {
             SessionManager.logout();
             new LandingPage().setVisible(true);
+            this.dispose();
+        });
+        jButton4.addActionListener(e -> {
+            new AdminOrders().setVisible(true);
+            this.dispose();
+        });
+        jButton5.addActionListener(e -> {
+            new ProfileAdmin().setVisible(true);
             this.dispose();
         });
     }

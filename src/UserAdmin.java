@@ -1,7 +1,4 @@
 import java.sql.SQLException;
-import java.awt.Color;
-import java.awt.event.MouseAdapter;
-import java.awt.event.MouseEvent;
 import javax.swing.JOptionPane;
 import javax.swing.JScrollPane;
 import javax.swing.JTable;
@@ -26,7 +23,6 @@ public class UserAdmin extends javax.swing.JFrame {
         setupUsersTable();
         setupUserSearch();
         loadUsers(null);
-        setupSidebarHighlight();
         setupUserDisplay();
     }
 
@@ -286,21 +282,32 @@ public class UserAdmin extends javax.swing.JFrame {
     }// </editor-fold>//GEN-END:initComponents
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
-        // TODO add your handling code here:
+        new UserAdmin().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton2ActionPerformed
 
     private void jButton7ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton7ActionPerformed
-        // TODO add your handling code here:
+        new ProductADMIN().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton7ActionPerformed
 
     private void jButton6ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton6ActionPerformed
-        // TODO add your handling code here:
+        new AdminDashboard().setVisible(true);
+        this.dispose();
     }//GEN-LAST:event_jButton6ActionPerformed
 
     private void initActions() {
         jButton1.addActionListener(e -> {
             SessionManager.logout();
             new LandingPage().setVisible(true);
+            this.dispose();
+        });
+        jButton4.addActionListener(e -> {
+            new AdminOrders().setVisible(true);
+            this.dispose();
+        });
+        jButton5.addActionListener(e -> {
+            new ProfileAdmin().setVisible(true);
             this.dispose();
         });
     }
@@ -450,32 +457,6 @@ public class UserAdmin extends javax.swing.JFrame {
         userPanel.add(nameLbl, java.awt.BorderLayout.NORTH);
         userPanel.add(emailLbl, java.awt.BorderLayout.CENTER);
         jPanel1.add(userPanel, new org.netbeans.lib.awtextra.AbsoluteConstraints(0, 350, 200, 60));
-    }
-
-    private void setupSidebarHighlight() {
-        MouseAdapter adapter = new MouseAdapter() {
-            @Override
-            public void mouseClicked(MouseEvent e) {
-                resetSidebarHighlight();
-                javax.swing.JLabel label = (javax.swing.JLabel) e.getSource();
-                label.setOpaque(true);
-                label.setBackground(new Color(209, 242, 235));
-            }
-        };
-
-        jLabel5.addMouseListener(adapter);
-        jLabel9.addMouseListener(adapter);
-        jLabel10.addMouseListener(adapter);
-        jLabel11.addMouseListener(adapter);
-        jLabel12.addMouseListener(adapter);
-    }
-
-    private void resetSidebarHighlight() {
-        javax.swing.JLabel[] labels = {jLabel5, jLabel9, jLabel10, jLabel11, jLabel12};
-        for (javax.swing.JLabel lbl : labels) {
-            lbl.setOpaque(false);
-            lbl.setBackground(null);
-        }
     }
 
     /**

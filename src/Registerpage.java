@@ -180,6 +180,11 @@ public class Registerpage extends javax.swing.JFrame {
     private void initActions() {
         // "Create Account" button
         jButton1.addActionListener(e -> handleCreateAccount());
+        // Back "<" button
+        jButton2.addActionListener(e -> {
+            new LandingPage().setVisible(true);
+            dispose();
+        });
     }
 
     private void handleCreateAccount() {

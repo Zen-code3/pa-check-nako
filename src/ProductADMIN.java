@@ -327,6 +327,7 @@ public ProductADMIN(AdminDashboard parent) {
             new LandingPage().setVisible(true);
             this.dispose();
         });
+        setupSidebarNavigation();
 
         // "+ Add Product" clickable card
         java.awt.event.MouseAdapter openAdd = new java.awt.event.MouseAdapter() {
@@ -340,6 +341,30 @@ public ProductADMIN(AdminDashboard parent) {
         jLabel13.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
         jPanel11.addMouseListener(openAdd);
         jLabel13.addMouseListener(openAdd);
+    }
+
+    private void setupSidebarNavigation() {
+        java.awt.event.MouseAdapter nav = new java.awt.event.MouseAdapter() {
+            @Override
+            public void mouseClicked(java.awt.event.MouseEvent e) {
+                Object src = e.getSource();
+                if (src == jLabel5) { new AdminDashboard().setVisible(true); dispose(); }
+                else if (src == jLabel9) { new ProductADMIN().setVisible(true); dispose(); }
+                else if (src == jLabel10) { new UserAdmin().setVisible(true); dispose(); }
+                else if (src == jLabel11) { new AdminOrders().setVisible(true); dispose(); }
+                else if (src == jLabel12) { new ProfileAdmin().setVisible(true); dispose(); }
+            }
+        };
+        jLabel5.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel9.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel10.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel11.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel12.setCursor(new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR));
+        jLabel5.addMouseListener(nav);
+        jLabel9.addMouseListener(nav);
+        jLabel10.addMouseListener(nav);
+        jLabel11.addMouseListener(nav);
+        jLabel12.addMouseListener(nav);
     }
 
     private JTable productTable;

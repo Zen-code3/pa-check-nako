@@ -389,6 +389,12 @@ public class AdminDashboard extends javax.swing.JFrame {
             new LandingPage().setVisible(true);
             this.dispose();
         });
+        java.awt.Cursor hand = new java.awt.Cursor(java.awt.Cursor.HAND_CURSOR);
+        jLabel5.setCursor(hand);
+        jLabel9.setCursor(hand);
+        jLabel10.setCursor(hand);
+        jLabel11.setCursor(hand);
+        jLabel12.setCursor(hand);
     }
 
     private void setupUserDisplay() {
